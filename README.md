@@ -1,3 +1,3 @@
-# final-project
+# Balance-Bot
 
-A full stack JavaScript solo project.
+A discord bot project to try and balance me and my friends' inhouse games in league of legends
