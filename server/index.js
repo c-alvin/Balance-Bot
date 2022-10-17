@@ -14,6 +14,8 @@ const client = new Client({
   ]
 });
 
+const users = [];
+
 client.on('ready', () => {
   /* eslint-disable no-console */
   console.log(`Logged in as ${client.user.tag}!`);
@@ -31,8 +33,23 @@ client.on('interactionCreate', async interaction => {
   const { commandName } = interaction;
 
   if (commandName === 'inhouse') {
+
+    const filter = (reaction, user) => {
+      return reaction.emoji.name === 'DavidHeh';
+    };
+
     const message = await interaction.reply({ content: 'Sign up for inhouse', fetchReply: true });
     message.react('<:DavidHeh:1013223547889533038>');
+
+    const collector = message.createReactionCollector({ filter });
+
+    collector.on('collect', (reaction, user) => {
+      // console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+      users.push(user.tag);
+      console.log(users);
+      console.log(collector.message.reactions);
+    });
+
   }
 });
 
