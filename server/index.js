@@ -16,6 +16,9 @@ const client = new Client({
 });
 
 let users = [];
+const team1 = [];
+const team2 = [];
+const waitlist = [];
 
 client.on('ready', () => {
   /* eslint-disable no-console */
@@ -26,11 +29,22 @@ client.on('messageCreate', msg => {
   const player = users.length === 1
     ? 'player'
     : 'players';
-  if (msg.content === 'teams') {
-    if (users.length !== 10) {
+  if (msg.content.toLowerCase() === 'teams') {
+    if (users.length < 10) {
       msg.reply(`${users.length} ${player} in the queue! Get 10 players or else <:shank:565701996015910922>.`);
     } else {
-      msg.reply(`team 1: ${users}`);
+      for (let i = 0; i < users.length; i++) {
+        if (i <= 4) {
+          team1.push(users[i]);
+        } else if (i <= 9) {
+          team2.push(users[i]);
+        } else {
+          waitlist.push(users[i]);
+        }
+      }
+      msg.reply(`Team :blue_circle:: ${team1}
+Team :red_circle:: ${team2}
+Waitlist: ${waitlist}`);
     }
   }
 });
@@ -43,11 +57,16 @@ client.on('interactionCreate', async interaction => {
   if (commandName === 'inhouse') {
     users = [];
     const filter = (reaction, user) => {
+      // return reaction.emoji.name;
       return reaction.emoji.name === 'DavidHeh';
     };
 
     const message = await interaction.reply({ content: 'Sign up for inhouse', fetchReply: true });
     message.react('<:DavidHeh:1013223547889533038>');
+
+    client.on('messageReactionAdd', (MessageReaction, User) => {
+      if (MessageReaction.emoji.name !== 'DavidHeh') MessageReaction.remove();
+    });
 
     const collector = message.createReactionCollector({ filter });
 
@@ -58,7 +77,7 @@ client.on('interactionCreate', async interaction => {
         users.splice(0, 1);
       }
 
-      if (users.length === 10) {
+      if (users.length >= 10) {
         users = _.shuffle(users);
       }
 
