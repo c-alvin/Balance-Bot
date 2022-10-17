@@ -3,6 +3,7 @@ const express = require('express');
 const staticMiddleware = require('./static-middleware');
 const errorMiddleware = require('./error-middleware');
 const { Client, GatewayIntentBits } = require('discord.js');
+const _ = require('lodash');
 
 const client = new Client({
   intents: [
@@ -14,7 +15,7 @@ const client = new Client({
   ]
 });
 
-const users = [];
+let users = [];
 
 client.on('ready', () => {
   /* eslint-disable no-console */
@@ -22,8 +23,15 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', msg => {
-  if (msg.content === 'ping') {
-    msg.reply('pong');
+  const player = users.length === 1
+    ? 'player'
+    : 'players';
+  if (msg.content === 'teams') {
+    if (users.length !== 10) {
+      msg.reply(`${users.length} ${player} in the queue! Get 10 players or else <:shank:565701996015910922>.`);
+    } else {
+      msg.reply(`team 1: ${users}`);
+    }
   }
 });
 
@@ -33,7 +41,7 @@ client.on('interactionCreate', async interaction => {
   const { commandName } = interaction;
 
   if (commandName === 'inhouse') {
-
+    users = [];
     const filter = (reaction, user) => {
       return reaction.emoji.name === 'DavidHeh';
     };
@@ -46,8 +54,14 @@ client.on('interactionCreate', async interaction => {
     collector.on('collect', (reaction, user) => {
       // console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
       users.push(user.tag);
-      console.log(users);
-      console.log(collector.message.reactions);
+      if (users[0] === 'Balance Bot#0880') {
+        users.splice(0, 1);
+      }
+
+      if (users.length === 10) {
+        users = _.shuffle(users);
+      }
+
     });
 
   }
@@ -58,10 +72,6 @@ client.login(process.env.TOKEN);
 const app = express();
 
 app.use(staticMiddleware);
-
-app.get('/api/hello', (req, res) => {
-  res.json({ hello: 'world' });
-});
 
 app.use(errorMiddleware);
 
