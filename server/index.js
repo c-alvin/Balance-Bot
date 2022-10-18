@@ -42,8 +42,8 @@ client.on('messageCreate', msg => {
           waitlist.push(`<@${users[i]}>`);
         }
       }
-      msg.reply(`Team :blue_circle:: ${team1}
-Team :red_circle:: ${team2}
+      msg.reply(`Team <:yas:1031775988218089514>: ${team1}
+Team <:ekk:1031775967343034368>: ${team2}
 Waitlist: ${waitlist}`);
     }
   }
