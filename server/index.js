@@ -35,11 +35,11 @@ client.on('messageCreate', msg => {
     } else {
       for (let i = 0; i < users.length; i++) {
         if (i <= 4) {
-          team1.push(users[i]);
+          team1.push(`<@${users[i]}>`);
         } else if (i <= 9) {
-          team2.push(users[i]);
+          team2.push(`<@${users[i]}>`);
         } else {
-          waitlist.push(users[i]);
+          waitlist.push(`<@${users[i]}>`);
         }
       }
       msg.reply(`Team :blue_circle:: ${team1}
@@ -61,19 +61,19 @@ client.on('interactionCreate', async interaction => {
       return reaction.emoji.name === 'DavidHeh';
     };
 
-    const message = await interaction.reply({ content: 'Sign up for inhouse', fetchReply: true });
+    const message = await interaction.reply({ content: 'React to sign-up for Inhouse', fetchReply: true });
     message.react('<:DavidHeh:1013223547889533038>');
 
     client.on('messageReactionAdd', (MessageReaction, User) => {
       if (MessageReaction.emoji.name !== 'DavidHeh') MessageReaction.remove();
     });
 
-    const collector = message.createReactionCollector({ filter });
+    const collector = message.createReactionCollector({ filter, dispose: true });
 
     collector.on('collect', (reaction, user) => {
       // console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-      users.push(user.tag);
-      if (users[0] === 'Balance Bot#0880') {
+      users.push(user.id);
+      if (users[0] === '1027410355007262773') {
         users.splice(0, 1);
       }
 
@@ -83,6 +83,15 @@ client.on('interactionCreate', async interaction => {
 
     });
 
+    collector.on('remove', (reaction, user) => {
+      if (reaction.emoji.name === 'DavidHeh') {
+        for (let i = 0; i < users.length; i++) {
+          if (user.id === users[i]) {
+            users.splice(i, 1);
+          }
+        }
+      }
+    });
   }
 });
 
