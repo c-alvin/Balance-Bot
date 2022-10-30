@@ -24,8 +24,8 @@ const client = new Client({
 });
 
 let users = [];
-const team1 = ['Noni', 'Divine'];
-const team2 = [];
+const team1 = ['Noni'];
+const team2 = ['Divine'];
 const waitlist = [];
 
 client.on('ready', () => {
@@ -69,6 +69,38 @@ client.on('messageCreate', msg => {
 
     const params = [team1[0], team1[1], team1[2], team1[3], team1[4]];
     db.query(sql, params);
+    const sql2 = `
+      UPDATE "Players"
+      SET "Losses" = "Losses" + 1,
+          "mmr" = "mmr" - 10
+      WHERE "username" = $1 OR "username" = $2 OR "username" = $3 OR "username" = $4 OR "username" = $5
+  `;
+
+    const params2 = [team2[0], team2[1], team2[2], team2[3], team2[4]];
+    db.query(sql2, params2);
+    msg.reply('Match has been recorded');
+  } else {
+    if (msg.content === 'team2win') {
+      const sql = `
+      UPDATE "Players"
+      SET "Wins" = "Wins" + 1,
+          "mmr" = "mmr" + 10
+      WHERE "username" = $1 OR "username" = $2 OR "username" = $3 OR "username" = $4 OR "username" = $5
+  `;
+
+      const params = [team2[0], team2[1], team2[2], team2[3], team2[4]];
+      db.query(sql, params);
+      const sql2 = `
+      UPDATE "Players"
+      SET "Losses" = "Losses" + 1,
+          "mmr" = "mmr" - 10
+      WHERE "username" = $1 OR "username" = $2 OR "username" = $3 OR "username" = $4 OR "username" = $5
+  `;
+
+      const params2 = [team1[0], team1[1], team1[2], team1[3], team1[4]];
+      db.query(sql2, params2);
+      msg.reply('Match has been recorded');
+    }
   }
 });
 
@@ -135,7 +167,18 @@ client.on(Events.InteractionCreate, async interaction => {
   const { commandName } = interaction;
 
   if (commandName === 'ranking') {
-    await interaction.reply('list');
+    const sql = `
+      select *
+        from "Players"
+        order by "mmr" DESC
+      `;
+
+    db.query(sql)
+      .then(results => {
+        const userRankings = JSON.stringify(results.rows);
+        interaction.reply(userRankings);
+      });
+
   }
 });
 
